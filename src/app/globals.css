@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ---- react-phone-number-input: match our Tailwind input styling ---- */
+.psp-phone .PhoneInput {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1; /* slate-300 */
+  background: #fff;
+  padding: 0.25rem 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.psp-phone .PhoneInput--focus,
+.psp-phone .PhoneInput:focus-within {
+  border-color: #6366f1; /* indigo-500 */
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 0.3);
+}
+
+.psp-phone.is-invalid .PhoneInput {
+  border-color: #f87171; /* red-400 */
+}
+
+.psp-phone.is-invalid .PhoneInput:focus-within {
+  box-shadow: 0 0 0 2px rgb(248 113 113 / 0.3);
+}
+
+.psp-phone .PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  color: #0f172a; /* slate-900 */
+}
+
+.psp-phone .PhoneInputInput::placeholder {
+  color: #94a3b8; /* slate-400 */
+}
+
+.psp-phone .PhoneInputCountry {
+  margin: 0;
+  padding-right: 0.5rem;
+  border-right: 1px solid #e2e8f0; /* slate-200 */
+}
+
+.psp-phone .PhoneInputCountryIcon {
+  width: 1.5rem;
+  height: 1.1rem;
+  box-shadow: none;
+}
+
+/* Country is fixed to India: show the flag but make the selector inert. */
+.psp-phone .PhoneInputCountrySelect {
+  pointer-events: none;
+}
+
+.psp-phone .PhoneInputCountrySelectArrow {
+  display: none;
+}
+
+.psp-phone .PhoneInput--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
