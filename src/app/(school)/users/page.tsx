@@ -12,7 +12,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { listUsers, updateUser } from "@/lib/api/users";
 import { canManageUsers, canViewUsers, creatableRoles } from "@/lib/roles";
 import type { UserRecord } from "@/types/users";
-import { AddUserModal } from "@/app/users/add-user-modal";
+import { AddUserModal } from "@/app/(school)/users/add-user-modal";
 
 const PAGE_SIZE = 20;
 
@@ -134,25 +134,17 @@ export default function UsersPage() {
   // Block render until guards have resolved.
   if (status !== "authenticated" || !user || !user.onboarding_completed || !view) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <Spinner className="h-8 w-8 text-indigo-600" />
-      </main>
+      </div>
     );
   }
 
   const roleLabel = (value: string): string => t(`role.${value}`);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-slate-50 to-white px-4 py-10">
+    <>
       <div className="mx-auto w-full max-w-5xl">
-        <button
-          type="button"
-          onClick={() => router.push("/dashboard")}
-          className="mb-4 text-sm font-medium text-slate-500 transition hover:text-slate-700"
-        >
-          {t("users.back_to_dashboard")}
-        </button>
-
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             {t("users.title")}
@@ -305,6 +297,6 @@ export default function UsersPage() {
           onCreated={handleCreated}
         />
       )}
-    </main>
+    </>
   );
 }

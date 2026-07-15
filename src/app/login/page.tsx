@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
+import { homeForRole } from "@/lib/roles";
 
 type Step = "mobile" | "otp";
 
@@ -42,7 +43,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (status === "authenticated" && user) {
-      router.replace(user.onboarding_completed ? "/dashboard" : "/onboarding");
+      router.replace(homeForRole(user.role, user.onboarding_completed));
     }
   }, [status, user, router]);
 
@@ -76,7 +77,7 @@ export default function LoginPage() {
     try {
       const data = await confirmOtp(sessionId, otp);
       router.replace(
-        data.onboarding_completed ? "/dashboard" : "/onboarding",
+        homeForRole(data.user.role, data.onboarding_completed),
       );
     } catch (err) {
       setError(extractError(err, t("login.verify_error")));

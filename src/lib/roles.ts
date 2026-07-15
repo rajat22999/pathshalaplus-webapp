@@ -51,3 +51,38 @@ export function canViewUsers(role: string | null | undefined): boolean {
     role === ROLE_SUPER_ADMIN || role === ROLE_ADMIN || role === ROLE_STAFF
   );
 }
+
+/**
+ * Whether the caller may create/update students (admin or staff). Mirrors the
+ * backend student-management matrix — super_admin is NOT a student manager
+ * (they use the platform console).
+ */
+export function canManageStudents(role: string | null | undefined): boolean {
+  return role === ROLE_ADMIN || role === ROLE_STAFF;
+}
+
+/** Whether the caller may view the students roster (admin, staff or teacher). */
+export function canViewStudents(role: string | null | undefined): boolean {
+  return (
+    role === ROLE_ADMIN || role === ROLE_STAFF || role === ROLE_TEACHER
+  );
+}
+
+/**
+ * The landing route for a freshly authenticated user, by role + onboarding
+ * state:
+ *   super_admin                       -> /superadmin (the platform console)
+ *   any other role, not yet onboarded -> /onboarding (org wizard or profile
+ *                                        completion, per the role)
+ *   otherwise                         -> /dashboard  (the school CRM)
+ *
+ * Note: super_admin is a platform role and skips the school onboarding flow.
+ */
+export function homeForRole(
+  role: string | null | undefined,
+  onboardingCompleted: boolean,
+): string {
+  if (role === ROLE_SUPER_ADMIN) return "/superadmin";
+  if (!onboardingCompleted) return "/onboarding";
+  return "/dashboard";
+}

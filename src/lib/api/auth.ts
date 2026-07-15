@@ -14,15 +14,20 @@ import type {
 /**
  * Step 1 of login: authenticate a pre-existing user and create an OTP
  * challenge. `app_type` lets the backend enforce which roles may sign in here.
+ *
+ * `appType` defaults to the build-time {@link APP_TYPE} (this CRM console). The
+ * superadmin console overrides it with "admin" so the backend role-gates the
+ * platform owner onto a distinct app.
  */
 export async function login(
   mobile: string,
   countryCode: string,
+  appType: string = APP_TYPE,
 ): Promise<LoginData> {
   const { data } = await apiClient.post<ApiEnvelope<LoginData>>("/auth/login", {
     mobile,
     country_code: countryCode,
-    app_type: APP_TYPE,
+    app_type: appType,
   });
   return data.data;
 }
