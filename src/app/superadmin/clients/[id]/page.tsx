@@ -16,6 +16,7 @@ import {
   SubscriptionStatusBadge,
 } from "@/app/superadmin/badges";
 
+
 function extractError(err: unknown, fallback: string): string {
   if (isAxiosError(err)) {
     const message = (err.response?.data as { message?: unknown } | undefined)
