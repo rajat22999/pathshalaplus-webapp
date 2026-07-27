@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { isAxiosError } from "axios";
 import { isValidPhoneNumber } from "react-phone-number-input";
 
 import { useAuth } from "@/hooks/use-auth";
@@ -12,18 +11,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
 import { RECAPTCHA_CONTAINER_ID } from "@/config/env";
+import { authErrorMessage } from "@/lib/auth-errors";
 import { homeForRole } from "@/lib/roles";
 
 type Step = "mobile" | "otp";
-
-function extractError(err: unknown, fallback: string): string {
-  if (isAxiosError(err)) {
-    // Backend returns a localized { success, message, data } envelope on errors.
-    const message = (err.response?.data as { message?: unknown } | undefined)?.message;
-    if (typeof message === "string" && message) return message;
-  }
-  return fallback;
-}
 
 export default function LoginPage() {
   const { status, user, requestLogin, confirmOtp } = useAuth();
@@ -64,7 +55,7 @@ export default function LoginPage() {
       if (res.debug_otp) setOtp(res.debug_otp);
       setStep("otp");
     } catch (err) {
-      setError(extractError(err, t("login.send_error")));
+      setError(authErrorMessage(err, t, t("login.send_error")));
     } finally {
       setLoading(false);
     }
@@ -81,7 +72,7 @@ export default function LoginPage() {
         homeForRole(data.user.role, data.onboarding_completed),
       );
     } catch (err) {
-      setError(extractError(err, t("login.verify_error")));
+      setError(authErrorMessage(err, t, t("login.verify_error")));
     } finally {
       setLoading(false);
     }

@@ -73,13 +73,22 @@ function getRecaptchaVerifier(): RecaptchaVerifier {
  * every retry fail with the same error the first attempt did.
  */
 export function resetRecaptcha(): void {
-  if (!verifier) return;
+  const spent = verifier;
+  // Drop the reference first, so a throw below cannot strand a dead verifier.
+  verifier = null;
   try {
-    verifier.clear();
+    spent?.clear();
   } catch {
     // Already torn down (container unmounted) — nothing to do.
   }
-  verifier = null;
+  // clear() only empties the container for *visible* widgets — see
+  // RecaptchaVerifier.clear(): `if (!this.isInvisible) { ...removeChild... }`.
+  // Ours is invisible, so its DOM survives and grecaptcha then refuses to
+  // render again ("reCAPTCHA has already been rendered"), which would turn
+  // every retry into a hard failure.
+  if (typeof document !== "undefined") {
+    document.getElementById(RECAPTCHA_CONTAINER_ID)?.replaceChildren();
+  }
 }
 
 // --- phone -----------------------------------------------------------------
@@ -107,9 +116,12 @@ export async function sendPhoneOtp(
       getRecaptchaVerifier(),
     );
     return confirmation.verificationId;
-  } catch (err) {
+  } finally {
+    // Reset on SUCCESS as well as failure: a reCAPTCHA token is single-use, and
+    // the SDK already resets the verifier internally once it has been spent.
+    // Keeping our reference would hand the next send a consumed verifier — the
+    // failure mode that makes "it worked once, then never again" so confusing.
     resetRecaptcha();
-    throw err;
   }
 }
 

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
 import { RECAPTCHA_CONTAINER_ID } from "@/config/env";
+import { authErrorMessage } from "@/lib/auth-errors";
 import { ROLE_SUPER_ADMIN } from "@/lib/roles";
 
 // The platform console signs in against a distinct backend app so the backend
@@ -20,16 +21,6 @@ import { ROLE_SUPER_ADMIN } from "@/lib/roles";
 const SUPERADMIN_APP_TYPE = "admin";
 
 type Step = "mobile" | "otp";
-
-function extractError(err: unknown, fallback: string): string {
-  if (isAxiosError(err)) {
-    // Backend returns a localized { success, message, data } envelope on errors.
-    const message = (err.response?.data as { message?: unknown } | undefined)
-      ?.message;
-    if (typeof message === "string" && message) return message;
-  }
-  return fallback;
-}
 
 export default function SuperadminLoginPage() {
   const { status, user, requestLogin, confirmOtp, logout } = useAuth();
@@ -83,7 +74,7 @@ export default function SuperadminLoginPage() {
         isAxiosError(err) && err.response?.status === 403
           ? t("superadmin.login.unauthorized")
           : t("login.send_error");
-      setError(extractError(err, fallback));
+      setError(authErrorMessage(err, t, fallback));
     } finally {
       setLoading(false);
     }
@@ -106,7 +97,7 @@ export default function SuperadminLoginPage() {
         isAxiosError(err) && err.response?.status === 403
           ? t("superadmin.login.unauthorized")
           : t("login.verify_error");
-      setError(extractError(err, fallback));
+      setError(authErrorMessage(err, t, fallback));
     } finally {
       setLoading(false);
     }
