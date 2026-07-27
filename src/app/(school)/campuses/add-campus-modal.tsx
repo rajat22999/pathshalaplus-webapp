@@ -24,6 +24,7 @@ function extractError(err: unknown, fallback: string): string {
   return fallback;
 }
 
+
 interface AddCampusModalProps {
   onClose: () => void;
   onCreated: (campus: Campus) => void;
