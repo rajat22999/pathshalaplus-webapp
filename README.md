@@ -71,3 +71,42 @@ Tokens are stored in `localStorage` and refreshed automatically when the access
 token expires (the axios interceptor calls `/auth/refresh` and retries). For
 production hardening, consider moving the refresh token to an httpOnly cookie —
 only `src/lib/tokens.ts` and the interceptor would need to change.
+
+## Firebase authentication
+
+Sign-in is delegated to Firebase Auth (phone OTP, and email/password linked to
+the same account). Firebase only proves the user controls the identifier; the
+API still issues the tokens the app runs on, via `POST /api/v1/auth/firebase`.
+
+### Local setup
+
+1. Copy `.env.local.example` to `.env.local` and fill the `NEXT_PUBLIC_FIREBASE_*`
+   values from Firebase console → Project settings → Your apps → Web app.
+2. Set `FIREBASE_PROJECT_ID` in the **API**'s `.env` to the same project id.
+
+Leave the Firebase vars blank to fall back to the legacy backend OTP flow
+(fixed code `123456`, no SMS sent). That is the recommended local default —
+every real send is billed.
+
+### Firebase console requirements
+
+- **Authorized domains** must list every origin the app is served from
+  (`localhost` is present by default; production hostnames must be added by
+  hand, or phone sign-in fails there only).
+- **Test phone numbers** (Authentication → Sign-in method → Phone) give a fixed
+  number/code pair that never sends an SMS and never consumes quota — use these
+  for staging and demo accounts.
+- **SMS region policy** is restricted to India. Numbers outside +91 are rejected
+  by Firebase, not by us.
+
+### Things that bite
+
+- Phone sign-in on web **requires reCAPTCHA**. It is invisible in the happy
+  path, but the container div must exist before sign-in is called — both login
+  pages render one (`RECAPTCHA_CONTAINER_ID`).
+- The verifier is a module-level singleton in `src/lib/firebase.ts` so React
+  StrictMode's double-invoked effects do not render two widgets into one
+  container. Any failed send calls `resetRecaptcha()`; a spent verifier cannot
+  be reused, so skipping that makes every retry fail.
+- `NEXT_PUBLIC_*` are inlined at build time. The machine running `next build`
+  needs them — setting them on the deployed environment is too late.

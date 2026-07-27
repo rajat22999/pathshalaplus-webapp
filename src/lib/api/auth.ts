@@ -32,6 +32,23 @@ export async function login(
   return data.data;
 }
 
+/**
+ * Exchange a Firebase ID token for our own tokens + profile.
+ *
+ * Covers both Firebase sign-in methods — phone OTP and email/password — because
+ * the backend reads the provider from the verified token, not from us.
+ */
+export async function firebaseLogin(
+  idToken: string,
+  appType: string = APP_TYPE,
+): Promise<VerifyData> {
+  const { data } = await apiClient.post<ApiEnvelope<VerifyData>>(
+    "/auth/firebase",
+    { id_token: idToken, app_type: appType },
+  );
+  return data.data;
+}
+
 /** Step 2 of login: verify the OTP and receive tokens + the user profile. */
 export async function verifyOtp(
   sessionId: string,

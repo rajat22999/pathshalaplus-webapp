@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
-import { login as apiLogin } from "@/lib/api/auth";
+import { RECAPTCHA_CONTAINER_ID } from "@/config/env";
 import { ROLE_SUPER_ADMIN } from "@/lib/roles";
 
 // The platform console signs in against a distinct backend app so the backend
@@ -32,7 +32,7 @@ function extractError(err: unknown, fallback: string): string {
 }
 
 export default function SuperadminLoginPage() {
-  const { status, user, confirmOtp, logout } = useAuth();
+  const { status, user, requestLogin, confirmOtp, logout } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -72,7 +72,7 @@ export default function SuperadminLoginPage() {
     setLoading(true);
     try {
       // Country is locked to India, so the E.164 value already carries +91.
-      const res = await apiLogin(mobile, "+91", SUPERADMIN_APP_TYPE);
+      const res = await requestLogin(mobile, "+91", SUPERADMIN_APP_TYPE);
       setSessionId(res.session_id);
       setDevOtp(res.debug_otp);
       if (res.debug_otp) setOtp(res.debug_otp);
@@ -95,7 +95,7 @@ export default function SuperadminLoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const data = await confirmOtp(sessionId, otp);
+      const data = await confirmOtp(sessionId, otp, SUPERADMIN_APP_TYPE);
       if (data.user.role === ROLE_SUPER_ADMIN) {
         router.replace("/superadmin");
       }
@@ -244,6 +244,9 @@ export default function SuperadminLoginPage() {
             )}
           </>
         )}
+
+        {/* Invisible reCAPTCHA mount point (see the CRM login page). */}
+        <div id={RECAPTCHA_CONTAINER_ID} />
       </Card>
     </main>
   );

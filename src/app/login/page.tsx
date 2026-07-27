@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
+import { RECAPTCHA_CONTAINER_ID } from "@/config/env";
 import { homeForRole } from "@/lib/roles";
 
 type Step = "mobile" | "otp";
@@ -171,6 +172,11 @@ export default function LoginPage() {
             </button>
           </form>
         )}
+
+        {/* Invisible reCAPTCHA mounts here. Firebase requires a real, stable
+            DOM node before signInWithPhoneNumber is called, so it is rendered
+            for both steps rather than conditionally. */}
+        <div id={RECAPTCHA_CONTAINER_ID} />
       </Card>
     </main>
   );
